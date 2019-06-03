@@ -1,0 +1,59 @@
+<html>
+<head>
+<script>
+
+	window.Uploader = new function()
+	{
+		var _ = this;
+
+		var ready = false;
+		var hForm;
+
+		this.onsubmit = function(handle)
+		{
+			hForm = handle;
+		};
+
+		this.onresponse = function(hFrame)
+		{
+			if(ready)
+			{
+				hFrame.contentWindow.onsent = function(response)
+				{
+					if(response.result)
+					{
+						hForm.reset();
+						
+						_.onsuccess(response.message);
+					}
+					else
+						_.onfailure(response.message);
+				};
+			}
+			else
+				ready = true;
+		};
+		
+		this.onsuccess = function(message)
+		{
+			//TODO: success logic
+			alert('Success: ' + message);
+		};
+		
+		this.onfailure = function(message)
+		{
+			//TODO: faliture logic
+			alert('Error: ' + message);
+		};
+	};
+
+</script>
+<head>
+<body>
+	<iframe src="" style="display:none;" onload="Uploader.onresponse(this);" onerror="Uploader.onfailure('Loading error.');" name="hidden-iframe"></iframe>
+	<form action="backend.php" method="post" enctype="multipart/form-data" onsubmit="Uploader.onsubmit(this);" target="hidden-iframe">
+		<input type="file" name="file" />
+		<input type="submit" value="send" />
+	</form>
+</body>
+</html>
